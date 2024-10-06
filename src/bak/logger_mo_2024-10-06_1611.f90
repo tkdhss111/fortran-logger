@@ -132,7 +132,7 @@ contains
     if ( present (u) ) then
       u_ = u
     else
-      u_ = stderr
+      u_ = 6
     end if
     call execute_command_line (trim(cmd),&
       exitstat = exitstat, &
