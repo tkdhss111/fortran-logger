@@ -20,12 +20,12 @@ module logger_mo
 
 contains
 
-  subroutine open_file_with_logger ( this, file_macro, line_macro, newunit, file, status, access )
+  subroutine open_file_with_logger ( this, file_macro, line_macro, u, file, status, access )
 
     class(logger_ty), intent(inout)        :: this
     character(*),     intent(in)           :: file_macro
     integer,          intent(in)           :: line_macro
-    integer,          intent(out)          :: newunit
+    integer,          intent(out)          :: u
     character(*),     intent(in)           :: file
     character(*),     intent(in), optional :: status
     character(*),     intent(in), optional :: access
@@ -46,7 +46,7 @@ contains
       access_ = 'sequential'
     end if
 
-    open( newunit = newunit, &
+    open( newunit = u, &
       file = trim(file), status = trim(status_), access = trim(access_), &
       iomsg = iomsg, iostat = iostat )
 

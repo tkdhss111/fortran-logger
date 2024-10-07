@@ -20,12 +20,12 @@ module logger_mo
 
 contains
 
-  subroutine open_file_with_logger ( this, file_macro, line_macro, newunit, file, status, access )
+  subroutine open_file_with_logger ( this, file_macro, line_macro, u, file, status, access )
 
     class(logger_ty), intent(inout)        :: this
     character(*),     intent(in)           :: file_macro
     integer,          intent(in)           :: line_macro
-    integer,          intent(out)          :: newunit
+    integer,          intent(out)          :: u
     character(*),     intent(in)           :: file
     character(*),     intent(in), optional :: status
     character(*),     intent(in), optional :: access
@@ -46,7 +46,7 @@ contains
       access_ = 'sequential'
     end if
 
-    open( newunit = newunit, &
+    open( newunit = u, &
       file = trim(file), status = trim(status_), access = trim(access_), &
       iomsg = iomsg, iostat = iostat )
 
@@ -86,13 +86,13 @@ contains
 
   end subroutine
 
-  subroutine write_log ( this, file, line, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+  subroutine write_log ( this, file, line, x1, x2, x3, x4, x5, x6 )
 
     class(logger_ty), intent(inout)        :: this
     character(*),     intent(in)           :: file
     integer,          intent(in)           :: line
-    class(*),         intent(in), optional :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
-    character(:), allocatable              :: c1, c2, c3, c4, c5, c6, c7, c8, c9, c10
+    class(*),         intent(in), optional :: x1, x2, x3, x4, x5, x6
+    character(:), allocatable              :: c1, c2, c3, c4, c5, c6
     character(255)                         :: prefix
     character(20)                          :: cimage
     character(:), allocatable              :: msg, msg_ansi
@@ -140,19 +140,18 @@ contains
     !
     ! Arguments
     !
-    c1  = write_x ( x1  )
-    c2  = write_x ( x2  )
-    c3  = write_x ( x3  )
-    c4  = write_x ( x4  )
-    c5  = write_x ( x5  )
-    c6  = write_x ( x6  )
-    c7  = write_x ( x7  )
-    c8  = write_x ( x8  )
-    c9  = write_x ( x9  )
-    c10 = write_x ( x10 )
+    c1  = write_x ( x1 )
+    c2  = write_x ( x2 )
+    c3  = write_x ( x3 )
+    c4  = write_x ( x4 )
+    c5  = write_x ( x5 )
+    c6  = write_x ( x6 )
+    c7  = write_x ( x7)
+    c8  = write_x ( x8 )
+    c9  = write_x ( x9 )
+    c10 = write_x ( x7)
 
-    msg = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
-      trim(c6)//' '//trim(c7)//' '//trim(c8)//' '//trim(c9)//' '//trim(c10)
+    msg = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//trim(c6)
 
     !
     ! Keyword Coloring
