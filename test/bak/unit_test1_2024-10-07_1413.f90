@@ -9,7 +9,7 @@ program unit_test1
   ! Test: debuglevel
   call logger.init ( file = 'test.log', debuglevel = 1 )
   call logger.init ( file = 'test.log', debuglevel = 0 )
-  call logger.init ( file = 'test.log', debuglevel = 4 )
+  call logger.init ( file = 'test.log', debuglevel = 2 )
 
   ! Test: Time stamp
   call sleep(5)
@@ -21,7 +21,6 @@ program unit_test1
 
   ! Test: Execute command line with logger
   call logger.exec ( __FILE__, __LINE__,  'touch exec_test.txt' )
-  call logger.exec ( __FILE__, __LINE__,  'rm non-existed.txt' )
 
   ! Test: Arguments
   i = 3

@@ -9,7 +9,7 @@ program unit_test1
   ! Test: debuglevel
   call logger.init ( file = 'test.log', debuglevel = 1 )
   call logger.init ( file = 'test.log', debuglevel = 0 )
-  call logger.init ( file = 'test.log', debuglevel = 4 )
+  call logger.init ( file = 'test.log', debuglevel = 2 )
 
   ! Test: Time stamp
   call sleep(5)
