@@ -10,7 +10,7 @@ module logger_mo
     character(255) :: file  = 'NA'
     character(255) :: email = 'NA'
     character(255) :: msg   = 'NA'
-    logical        :: colored = .false.
+    logical        :: colored = .ture.
     integer        :: debuglevel = 1 ! 0: No logging
   contains
     procedure :: init  => init_logger
@@ -167,7 +167,7 @@ contains
     ! Keyword Coloring
     !
     if ( index( msg, 'Error' ) > 0  .or. index( msg, 'Fatal' ) > 0 ) then
-      if ( this.colored ) then
+      if ( colored ) then
         msg_ansi = RED//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 1 ) then
@@ -176,7 +176,7 @@ contains
     end if
 
     if ( index( msg, 'Warn' ) > 0 ) then
-      if ( this.colored ) then
+      if ( colored ) then
         msg_ansi = YELLOW//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 2 ) then
@@ -185,7 +185,7 @@ contains
     end if
 
     if ( index( msg, 'Debug' ) > 0 ) then
-      if ( this.colored ) then
+      if ( colored ) then
         msg_ansi = GREEN//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 3 ) then
@@ -194,7 +194,7 @@ contains
     end if
 
     if ( index( msg, 'Info' ) > 0 ) then
-      if ( this.colored ) then
+      if ( colored ) then
         msg_ansi = BLUE//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 4 ) then

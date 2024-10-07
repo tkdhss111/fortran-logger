@@ -10,7 +10,7 @@ module logger_mo
     character(255) :: file  = 'NA'
     character(255) :: email = 'NA'
     character(255) :: msg   = 'NA'
-    logical        :: colored = .false.
+    logical        :: colored = .ture.
     integer        :: debuglevel = 1 ! 0: No logging
   contains
     procedure :: init  => init_logger
@@ -86,10 +86,10 @@ contains
       this.debuglevel = debuglevel
     end if
 
-    call this.write ( __FILE__, __LINE__, '*** Info: file = ',       this.file       )
-    call this.write ( __FILE__, __LINE__, '*** Info: email = ',      this.email      )
-    call this.write ( __FILE__, __LINE__, '*** Info: colored = ',    this.colored    )
-    call this.write ( __FILE__, __LINE__, '*** Info: debuglevel = ', this.debuglevel )
+    call this.write ( __FILE__, __LINE__, '*** Info: file = ', file )
+    call this.write ( __FILE__, __LINE__, '*** Info: email = ', email )
+    call this.write ( __FILE__, __LINE__, '*** Info: colored = ', colored )
+    call this.write ( __FILE__, __LINE__, '*** Info: debuglevel = ', debuglevel )
 
   end subroutine
 
@@ -161,42 +161,32 @@ contains
     msg = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
       trim(c6)//' '//trim(c7)//' '//trim(c8)//' '//trim(c9)//' '//trim(c10)
 
-    msg_ansi = msg
-
     !
     ! Keyword Coloring
     !
     if ( index( msg, 'Error' ) > 0  .or. index( msg, 'Fatal' ) > 0 ) then
-      if ( this.colored ) then
-        msg_ansi = RED//trim(msg)//CLEAR
-      end if
+      msg_ansi = RED//trim(msg)//CLEAR
       if ( this.debuglevel >= 1 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
     if ( index( msg, 'Warn' ) > 0 ) then
-      if ( this.colored ) then
-        msg_ansi = YELLOW//trim(msg)//CLEAR
-      end if
+      msg_ansi = YELLOW//trim(msg)//CLEAR
       if ( this.debuglevel >= 2 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
     if ( index( msg, 'Debug' ) > 0 ) then
-      if ( this.colored ) then
-        msg_ansi = GREEN//trim(msg)//CLEAR
-      end if
+      msg_ansi = GREEN//trim(msg)//CLEAR
       if ( this.debuglevel >= 3 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
     if ( index( msg, 'Info' ) > 0 ) then
-      if ( this.colored ) then
-        msg_ansi = BLUE//trim(msg)//CLEAR
-      end if
+      msg_ansi = BLUE//trim(msg)//CLEAR
       if ( this.debuglevel >= 4 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
