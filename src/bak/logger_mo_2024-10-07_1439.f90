@@ -9,8 +9,9 @@ module logger_mo
   type logger_ty
     character(255) :: file  = 'NA'
     character(255) :: email = 'NA'
-    character(255) :: msg   = 'NA'
+    character(255) :: msg
     integer        :: debuglevel = 1 ! 0: No logging
+    integer        :: id
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
@@ -80,9 +81,9 @@ contains
       this.debuglevel = debuglevel
     end if
 
-    call this.write ( __FILE__, __LINE__, '*** Info: file = ', file )
-    call this.write ( __FILE__, __LINE__, '*** Info: email = ', email )
-    call this.write ( __FILE__, __LINE__, '*** Info: debuglevel = ', debuglevel )
+    call this.write ( __FILE__, __LINE__, 'Info: file = ', file )
+    call this.write ( __FILE__, __LINE__, 'Info: email = ', email )
+    call this.write ( __FILE__, __LINE__, 'Info: debuglevel = ', debuglevel )
 
   end subroutine
 
@@ -236,6 +237,7 @@ contains
       stop 1
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
+        call execute_command_line ( cmd )
         call this.write ( file_macro, line_macro, &
           '*** Error: exitstat=', exitstat, ', cmdstat=0', ', Command:', cmd )
         stop 1

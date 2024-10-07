@@ -4,18 +4,18 @@ module logger_mo
                                             stderr => error_unit
   implicit none
   private
-  public :: logger_ty
+  public :: logger_ty, exec
 
   type logger_ty
     character(255) :: file  = 'NA'
     character(255) :: email = 'NA'
-    character(255) :: msg   = 'NA'
+    character(255) :: msg
     integer        :: debuglevel = 1 ! 0: No logging
+    integer        :: id
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
     procedure :: open  => open_file_with_logger
-    procedure :: exec  => execute_with_logger
   end type
 
 contains
@@ -65,7 +65,7 @@ contains
     integer,      optional, intent(in)  :: debuglevel
 
     if ( this_image() == 1 ) then
-      call this.exec ( __FILE__, __LINE__, 'rm -f '//trim(file) )
+      call exec ( 'rm -f '//trim(file) )
     end if
 
     if ( present( file ) ) then
@@ -80,9 +80,9 @@ contains
       this.debuglevel = debuglevel
     end if
 
-    call this.write ( __FILE__, __LINE__, '*** Info: file = ', file )
-    call this.write ( __FILE__, __LINE__, '*** Info: email = ', email )
-    call this.write ( __FILE__, __LINE__, '*** Info: debuglevel = ', debuglevel )
+    call this.write ( __FILE__, __LINE__, 'Info: file = ', file )
+    call this.write ( __FILE__, __LINE__, 'Info: email = ', email )
+    call this.write ( __FILE__, __LINE__, 'Info: debuglevel = ', debuglevel )
 
   end subroutine
 
@@ -213,34 +213,31 @@ contains
 
   end subroutine
   
-  subroutine execute_with_logger ( this, file_macro, line_macro, cmd )
+  subroutine exec ( this, file_macro, line_macro, cmd )
 
     class(logger_ty), intent(inout) :: this
     character(*),     intent(in)    :: file_macro
     integer,          intent(in)    :: line_macro
-    character(*),     intent(in)    :: cmd
+    character(*)                    :: cmd
     integer                         :: cmdstat, exitstat
     character(255)                  :: cmdmsg
-
-    cmdmsg = 'NA'
 
     call execute_command_line( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
 
     if ( cmdstat > 0 ) then ! Command execution failed with error
-      call this.write ( file_macro, line_macro, &
-        '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
+      call logger.write ( file_macro, line_macro, '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg )
       stop 1
     else if ( cmdstat < 0 ) then ! Command execution not supported
-      call this.write ( file_macro, line_macro, &
-        '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
+      call logger.write ( file_macro, line_macro, '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg )
       stop 1
     else ! Command successfully completed with cmdstat == 0
-      if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
-        call this.write ( file_macro, line_macro, &
-          '*** Error: exitstat=', exitstat, ', cmdstat=0', ', Command:', cmd )
+      call logger.write ( file_macro, line_macro, '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg )
+      write ( msg, '(a, i0, a)') &
+        'Command successfully completed: cmdstat=', cmdstat, ', cmdmsg: '//trim(cmdmsg)
+      if ( exitstat /= 0 ) then 
+        write ( msg, '(a, i0, a)') &
+          '*** Command completed with exitstat=', exitstat
         stop 1
-      else
-        call this.write ( file_macro, line_macro, '*** Info: Command (successful): ', cmd )
       end if
     end if
 

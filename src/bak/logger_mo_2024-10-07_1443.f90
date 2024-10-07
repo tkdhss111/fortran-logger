@@ -9,8 +9,9 @@ module logger_mo
   type logger_ty
     character(255) :: file  = 'NA'
     character(255) :: email = 'NA'
-    character(255) :: msg   = 'NA'
+    character(255) :: msg
     integer        :: debuglevel = 1 ! 0: No logging
+    integer        :: id
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
