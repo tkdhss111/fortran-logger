@@ -8,6 +8,6 @@ set ( CMAKE_Fortran_FLAGS
 set ( CMAKE_Fortran_FLAGS_DEBUG
   "-Ddebug -O0 -fbounds-check -fbacktrace -Wall" )
 
-add_executable ( ${EXE} ${SRCS} )
 target_include_directories ( ${EXE} PUBLIC "../include" )
+add_executable ( ${EXE} ${SRCS} )
 add_test ( NAME ${EXE} COMMAND ${EXE} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )

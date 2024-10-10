@@ -1,4 +1,4 @@
-#include "macro.fi"
+#define MYLOG(__VA_ARGS__) call logger.write ( __FILE__, __LINE__, __VA_ARGS__ )
 
 program unit_test1
   use logger_mo
@@ -6,38 +6,27 @@ program unit_test1
   type(logger_ty) :: logger
   integer i, u
 
-
   print *, __FILE__, __LINE__
+  print *, write_msg ( 'write_msg test *** Error:', 1, '2', .true., -999.0, i  )
+  print *, write_macro ( __FILE__, __LINE__, 'write_macro test *** Error:', 1, '2', .true., -999.0, i  )
 
-  ! Debug Level
+  ! Test: debuglevel
   call logger.init ( file = 'test.log', debuglevel = 1 )
   call logger.init ( file = 'test.log', debuglevel = 0 )
   call logger.init ( file = 'test.log', debuglevel = 4 )
 
-  ! Time Stamp
-  i = 4
+  ! Macro
+  MYLOG( 'Macro test *** Error:' )
+
+  ! Test: Time stamp
+  call sleep(5)
   call logger.write ( __FILE__, __LINE__, '*** Error:', 1, '2', .true., -999.0, i )
-  call sleep(1)
   call logger.write ( __FILE__, __LINE__, '*** Warning:', 1, '2', .true., -999.99, i )
   call logger.write ( __FILE__, __LINE__, '*** Debug:', 1, '2', .true., -999.99, i )
   call logger.write ( __FILE__, __LINE__, '*** Info:', 1, '2', 'Yokadesu', -999.99, i )
 
-  ! Macro for an argument
-  __FATAL__( 'Macro test: fatal' )
-  __ERROR__( 'Macro test: error' )
-  __WARNING__( 'Macro test: warning' )
-  __DEBUG__( 'Macro test: debug' )
-  __INFO__( 'Macro test: info' )
-
-  ! Macro with paste function 
-  __FATAL__( paste( 'dame', i+2, .false. ) )
-  __DEBUG__( paste( 'yoi', i, .true. ) )
-
   ! Test: Execute command line with logger
   call logger.exec ( __FILE__, __LINE__,  'touch exec_test.txt' )
-
-  __EXEC__( 'touch exec_test2.txt' )
-
   !call logger.exec ( __FILE__, __LINE__,  'rm non-existed.txt' ) ! will stop
 
   ! Test: Open file with logger (run twice to cause an error)

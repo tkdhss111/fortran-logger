@@ -6,18 +6,18 @@ program unit_test1
   type(logger_ty) :: logger
   integer i, u
 
+  i = 4
 
   print *, __FILE__, __LINE__
 
-  ! Debug Level
+  ! Test: debuglevel
   call logger.init ( file = 'test.log', debuglevel = 1 )
   call logger.init ( file = 'test.log', debuglevel = 0 )
   call logger.init ( file = 'test.log', debuglevel = 4 )
 
-  ! Time Stamp
-  i = 4
-  call logger.write ( __FILE__, __LINE__, '*** Error:', 1, '2', .true., -999.0, i )
+  ! Test: Time stamp
   call sleep(1)
+  call logger.write ( __FILE__, __LINE__, '*** Error:', 1, '2', .true., -999.0, i )
   call logger.write ( __FILE__, __LINE__, '*** Warning:', 1, '2', .true., -999.99, i )
   call logger.write ( __FILE__, __LINE__, '*** Debug:', 1, '2', .true., -999.99, i )
   call logger.write ( __FILE__, __LINE__, '*** Info:', 1, '2', 'Yokadesu', -999.99, i )

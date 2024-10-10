@@ -1,5 +1,5 @@
 module logger_mo
-  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit,  &
+  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit, &
                                             stdout => output_unit, &
                                             stderr => error_unit
   implicit none
@@ -7,10 +7,10 @@ module logger_mo
   public :: logger_ty, paste
 
   type logger_ty
-    character(255) :: file       = 'NA'
-    character(255) :: email      = 'NA'
-    character(255) :: args       = 'NA'
-    logical        :: colored    = .false.
+    character(255) :: file  = 'NA'
+    character(255) :: email = 'NA'
+    character(255) :: args   = 'NA'
+    logical        :: colored = .false.
     integer        :: debuglevel = 1 ! 0: No logging
   contains
     procedure :: init  => init_logger
@@ -20,6 +20,21 @@ module logger_mo
   end type
 
 contains
+
+!  function write_macro ( file, line, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( macro )
+!
+!    character(*),       intent(in)  :: file
+!    integer,            intent(in)  :: line
+!    class(*), optional, intent(in)  :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
+!    character(:), allocatable       :: args, macro
+!
+!    args = write_args ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+!
+!    !write ( macro, '(a, i0, a)' )  'call logger.write ( '//trim(file)//',', line, ','//trim(args)//' )'
+!    !write ( macro, '(a, i0, a)' )  'call logger.write ( '//trim(file)//',', line, ',"my bad" )'
+!    macro = 'my bad'
+!
+!  end function
 
   pure function paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( args )
 

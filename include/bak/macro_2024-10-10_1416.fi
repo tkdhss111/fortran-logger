@@ -1,0 +1,5 @@
+#define __FATAL__(X1)   call logger.write ( __FILE__, __LINE__, '*** Fatal: ',   X1 )
+#define __ERROR__(X1)   call logger.write ( __FILE__, __LINE__, '*** Error: ',   X1 )
+#define __WARNING__(X1) call logger.write ( __FILE__, __LINE__, '*** Warning: ', X1 )
+#define __DEBUG__(X1)   call logger.write ( __FILE__, __LINE__, '*** Debug: ',   X1 )
+#define __INFO__(X1)    call logger.write ( __FILE__, __LINE__, '*** Info: ',    X1 )

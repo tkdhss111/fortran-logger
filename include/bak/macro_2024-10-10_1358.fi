@@ -1,0 +1,7 @@
+#define FATAL(X1) call logger.write ( __FILE__, __LINE__, '*** Fatal: ', X1 )
+#define ERROR(X1) call logger.write ( __FILE__, __LINE__, '*** Error: ', X1 )
+#define WARNING(X1) call logger.write ( __FILE__, __LINE__, '*** Warning: ', X1 )
+#define DEBUG(X1) call logger.write ( __FILE__, __LINE__, '*** Debug: ', X1 )
+#define INFO(X1) call logger.write ( __FILE__, __LINE__, '*** Info: ', X1 )
+#define MYTEST(X) write_macro ( __FILE__, __LINE__,  X )
+! Not supported in gfortran: #define INFO(...) call logger.write ( __FILE__, __LINE__, ##__VA_ARGS__ )

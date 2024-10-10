@@ -1,16 +1,16 @@
 module logger_mo
-  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit,  &
+  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit, &
                                             stdout => output_unit, &
                                             stderr => error_unit
   implicit none
   private
-  public :: logger_ty, paste
+  public :: logger_ty
 
   type logger_ty
-    character(255) :: file       = 'NA'
-    character(255) :: email      = 'NA'
-    character(255) :: args       = 'NA'
-    logical        :: colored    = .false.
+    character(255) :: file  = 'NA'
+    character(255) :: email = 'NA'
+    character(255) :: msg   = 'NA'
+    logical        :: colored = .false.
     integer        :: debuglevel = 1 ! 0: No logging
   contains
     procedure :: init  => init_logger
@@ -21,11 +21,11 @@ module logger_mo
 
 contains
 
-  pure function paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( args )
+  pure function write_msg ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( msg )
 
     class(*), optional, intent(in) :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
     character(:), allocatable      :: c1, c2, c3, c4, c5, c6, c7, c8, c9, c10
-    character(:), allocatable      :: args
+    character(:), allocatable      :: msg
 
     c1  = write_x ( x1  )
     c2  = write_x ( x2  )
@@ -38,8 +38,9 @@ contains
     c9  = write_x ( x9  )
     c10 = write_x ( x10 )
 
-    args = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
+    msg = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
       trim(c6)//' '//trim(c7)//' '//trim(c8)//' '//trim(c9)//' '//trim(c10)
+
   end function
 
   pure elemental function write_x ( x ) result ( c )
@@ -135,17 +136,18 @@ contains
 
   subroutine write_log ( this, file, line, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 
-    class(logger_ty),   intent(inout) :: this
-    character(*),       intent(in)    :: file
-    integer,            intent(in)    :: line
-    class(*), optional, intent(in)    :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
-    character(255)                    :: prefix
-    character(20)                     :: cimage
-    character(:), allocatable         :: args, args_ansi
-    character(8)                      :: date
-    character(10)                     :: time
-    character(19)                     :: datetime
-    character(255)                    :: iomsg, cmdmsg
+    class(logger_ty), intent(inout)        :: this
+    character(*),     intent(in)           :: file
+    integer,          intent(in)           :: line
+    class(*),         intent(in), optional :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
+    character(:), allocatable              :: c1, c2, c3, c4, c5, c6, c7, c8, c9, c10
+    character(255)                         :: prefix
+    character(20)                          :: cimage
+    character(:), allocatable              :: msg, msg_ansi
+    character(8)                           :: date
+    character(10)                          :: time
+    character(19)                          :: datetime
+    character(255)                         :: iomsg, cmdmsg
     integer u, iostat, cmdstat, exitstat
 
     ! ANSI Console Colors
@@ -183,46 +185,61 @@ contains
     write ( prefix, '(a, a15, a1, i4, a1)' ) &
       '['//datetime//']'//trim(cimage)//'[', trim(basename(file)), ':', line, ']'
 
-    args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+    !
+    ! Arguments
+    !
+    c1  = write_x ( x1  )
+    c2  = write_x ( x2  )
+    c3  = write_x ( x3  )
+    c4  = write_x ( x4  )
+    c5  = write_x ( x5  )
+    c6  = write_x ( x6  )
+    c7  = write_x ( x7  )
+    c8  = write_x ( x8  )
+    c9  = write_x ( x9  )
+    c10 = write_x ( x10 )
 
-    args_ansi = args
+    msg = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
+      trim(c6)//' '//trim(c7)//' '//trim(c8)//' '//trim(c9)//' '//trim(c10)
+
+    msg_ansi = msg
 
     !
     ! Keyword Coloring
     !
-    if ( index( args, 'Error' ) > 0  .or. index( args, 'Fatal' ) > 0 ) then
+    if ( index( msg, 'Error' ) > 0  .or. index( msg, 'Fatal' ) > 0 ) then
       if ( this.colored ) then
-        args_ansi = RED//trim(args)//CLEAR
+        msg_ansi = RED//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 1 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
-    if ( index( args, 'Warn' ) > 0 ) then
+    if ( index( msg, 'Warn' ) > 0 ) then
       if ( this.colored ) then
-        args_ansi = YELLOW//trim(args)//CLEAR
+        msg_ansi = YELLOW//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 2 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
-    if ( index( args, 'Debug' ) > 0 ) then
+    if ( index( msg, 'Debug' ) > 0 ) then
       if ( this.colored ) then
-        args_ansi = GREEN//trim(args)//CLEAR
+        msg_ansi = GREEN//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 3 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
-    if ( index( args, 'Info' ) > 0 ) then
+    if ( index( msg, 'Info' ) > 0 ) then
       if ( this.colored ) then
-        args_ansi = BLUE//trim(args)//CLEAR
+        msg_ansi = BLUE//trim(msg)//CLEAR
       end if
       if ( this.debuglevel >= 4 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, * ) trim(prefix)//' '//trim(msg_ansi)
       end if
     end if
 
@@ -232,7 +249,7 @@ contains
     ! Email Sending
     !
     if ( this.email /= 'NA' ) then
-      call execute_command_line ( 'echo "'//trim(args)//&
+      call execute_command_line ( 'echo "'//trim(msg)//&
         '" | neomutt -s "[fortran-logger]'//trim(prefix)//'" '//trim(this.email), &
         exitstat = exitstat, &
         cmdstat  = cmdstat,  &
@@ -251,7 +268,7 @@ contains
       if ( iostat /= 0 ) then
         write (stderr, *) trim(iomsg)
       end if
-      write ( u, * ) trim(prefix)//' '//trim(args)
+      write ( u, * ) trim(prefix)//' '//trim(msg)
       close ( u )
     end if
 

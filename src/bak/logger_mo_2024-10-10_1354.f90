@@ -1,16 +1,16 @@
 module logger_mo
-  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit,  &
+  use, intrinsic :: iso_fortran_env, only : stdin  => input_unit, &
                                             stdout => output_unit, &
                                             stderr => error_unit
   implicit none
   private
-  public :: logger_ty, paste
+  public :: logger_ty, write_macro
 
   type logger_ty
-    character(255) :: file       = 'NA'
-    character(255) :: email      = 'NA'
-    character(255) :: args       = 'NA'
-    logical        :: colored    = .false.
+    character(255) :: file  = 'NA'
+    character(255) :: email = 'NA'
+    character(255) :: args   = 'NA'
+    logical        :: colored = .false.
     integer        :: debuglevel = 1 ! 0: No logging
   contains
     procedure :: init  => init_logger
@@ -21,7 +21,20 @@ module logger_mo
 
 contains
 
-  pure function paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( args )
+  function write_macro ( file, line, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( macro )
+
+    character(*),       intent(in)  :: file
+    integer,            intent(in)  :: line
+    class(*), optional, intent(in)  :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
+    character(:), allocatable       :: args, macro
+
+    args = write_args ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+
+    write ( macro, '(a, i0, a)' )  'call logger.write ( '//trim(file)//',', line, ','//trim(args)//' )'
+
+  end function
+
+  pure function write_args ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 ) result ( args )
 
     class(*), optional, intent(in) :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
     character(:), allocatable      :: c1, c2, c3, c4, c5, c6, c7, c8, c9, c10
@@ -183,7 +196,7 @@ contains
     write ( prefix, '(a, a15, a1, i4, a1)' ) &
       '['//datetime//']'//trim(cimage)//'[', trim(basename(file)), ':', line, ']'
 
-    args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+    args = write_args ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 
     args_ansi = args
 
@@ -251,7 +264,7 @@ contains
       if ( iostat /= 0 ) then
         write (stderr, *) trim(iomsg)
       end if
-      write ( u, * ) trim(prefix)//' '//trim(args)
+      write ( u, * ) trim(prefix)//' '//trim(msg)
       close ( u )
     end if
 
