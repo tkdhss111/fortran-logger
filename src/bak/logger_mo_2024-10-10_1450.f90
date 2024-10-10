@@ -155,7 +155,7 @@ contains
     character(7) :: YELLOW  = achar(27)//'[1;43m'
     character(7) :: BLUE    = achar(27)//'[1;44m'
     !character(7) :: MAGENTA = achar(27)//'[1;45m'
-    character(7) :: CYAN    = achar(27)//'[1;46m'
+    !character(7) :: CYAN    = achar(27)//'[1;46m'
     !character(7) :: WHITE   = achar(27)//'[1;47m'
     character(4) :: CLEAR   = achar(27)//'[0m'
 
@@ -190,15 +190,6 @@ contains
     !
     ! Keyword Coloring
     !
-    if ( index( args, 'Log' ) > 0 ) then
-      if ( this.colored ) then
-        args_ansi = CYAN//trim(args)//CLEAR
-      end if
-      if ( this.debuglevel >= 1 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
-      end if
-    end if
-
     if ( index( args, 'Error' ) > 0  .or. index( args, 'Fatal' ) > 0 ) then
       if ( this.colored ) then
         args_ansi = RED//trim(args)//CLEAR
@@ -222,6 +213,15 @@ contains
         args_ansi = GREEN//trim(args)//CLEAR
       end if
       if ( this.debuglevel >= 3 ) then
+        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+      end if
+    end if
+
+    if ( index( args, 'Info' ) > 0 ) then
+      if ( this.colored ) then
+        args_ansi = BLUE//trim(args)//CLEAR
+      end if
+      if ( this.debuglevel >= 4 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if

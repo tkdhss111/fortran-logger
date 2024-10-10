@@ -190,15 +190,6 @@ contains
     !
     ! Keyword Coloring
     !
-    if ( index( args, 'Log' ) > 0 ) then
-      if ( this.colored ) then
-        args_ansi = CYAN//trim(args)//CLEAR
-      end if
-      if ( this.debuglevel >= 1 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
-      end if
-    end if
-
     if ( index( args, 'Error' ) > 0  .or. index( args, 'Fatal' ) > 0 ) then
       if ( this.colored ) then
         args_ansi = RED//trim(args)//CLEAR
@@ -231,6 +222,15 @@ contains
         args_ansi = BLUE//trim(args)//CLEAR
       end if
       if ( this.debuglevel >= 4 ) then
+        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+      end if
+    end if
+
+    if ( index( args, 'Log' ) > 0 ) then
+      if ( this.colored ) then
+        args_ansi = CYAN//trim(args)//CLEAR
+      end if
+      if ( this.debuglevel >= 0 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if

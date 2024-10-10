@@ -23,7 +23,7 @@ program unit_test1
   call logger.write ( __FILE__, __LINE__, '*** Info:', 1, '2', 'Yokadesu', -999.99, i )
 
   ! Macro for an argument
-  __LOG__( 'Macro test: log' )
+  __LOG__( '' )
   __FATAL__( 'Macro test: fatal' )
   __ERROR__( 'Macro test: error' )
   __WARNING__( 'Macro test: warning' )
