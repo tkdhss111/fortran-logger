@@ -43,7 +43,7 @@ program unit_test1
 
   ! Test: Open file with logger (run twice to cause an error)
   call logger.exec ( __FILE__, __LINE__, 'rm test.txt' )
-  call logger.open ( __FILE__, __LINE__, newunit = u, file = 'test.txt', status = 'new', access = 'append' ) ! will stop if text.txt exists.
+  call logger.open ( __FILE__, __LINE__, u, 'test.txt', status = 'new', access = 'append' ) ! will stop if text.txt exists.
   write ( u, '(a)' ) 'Test line'
   close ( u )
 

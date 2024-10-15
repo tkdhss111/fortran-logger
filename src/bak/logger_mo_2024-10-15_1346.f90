@@ -117,12 +117,12 @@ contains
     logical,      optional, intent(in)  :: colored
     integer,      optional, intent(in)  :: debuglevel
 
-    if ( present( file ) ) then
-      this.file = trim_literals ( file )
+    if ( this_image() == 1 ) then
+      call this.exec ( __FILE__, __LINE__, 'rm -f '//trim(file) )
     end if
 
-    if ( this_image() == 1 ) then
-      call this.exec ( __FILE__, __LINE__, 'rm -f '//trim(this.file) )
+    if ( present( file ) ) then
+      this.file = trim(file)
     end if
 
     if ( present( email ) ) then
