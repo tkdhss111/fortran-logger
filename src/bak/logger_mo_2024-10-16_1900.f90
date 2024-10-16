@@ -73,7 +73,7 @@ contains
     character(*),     intent(in), optional :: form
     character(20)                          :: status_
     character(20)                          :: access_
-    character(20)                          :: form_
+    character(20)                          :: f_
     character(200)                         :: iomsg
     integer                                :: iostat
 
@@ -89,14 +89,8 @@ contains
       access_ = 'sequential'
     end if
 
-    if ( present( form ) ) then
-      form_ = trim(form)
-    else
-      form_ = 'formatted'
-    end if
-
     open( newunit = newunit, &
-      file = trim(file), status = trim(status_), access = trim(access_), form = trim(form_), &
+      file = trim(file), status = trim(status_), access = trim(access_), &
       iomsg = iomsg, iostat = iostat )
 
     if ( iostat /= 0 ) then

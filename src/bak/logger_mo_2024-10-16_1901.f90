@@ -90,9 +90,9 @@ contains
     end if
 
     if ( present( form ) ) then
-      form_ = trim(form)
+      form = trim(form)
     else
-      form_ = 'formatted'
+      form = 'formatted'
     end if
 
     open( newunit = newunit, &
