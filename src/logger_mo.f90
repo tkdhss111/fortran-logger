@@ -100,7 +100,7 @@ contains
       iomsg = iomsg, iostat = iostat )
 
     if ( iostat /= 0 ) then
-      call this.write ( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
+      call this%write ( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
       stop '*** Erorr: '//trim(iomsg)
     end if
 
@@ -115,29 +115,29 @@ contains
     integer,      optional, intent(in)  :: debuglevel
 
     if ( present( file ) ) then
-      this.file = trim( file )
+      this%file = trim( file )
     end if
 
     if ( this_image() == 1 ) then
-      call this.exec ( __FILE__, __LINE__, 'rm -f '//trim(this.file) )
+      call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
     end if
 
     if ( present( email ) ) then
-      this.email = trim(email)
+      this%email = trim(email)
     end if
 
     if ( present( colored ) ) then
-      this.colored = colored
+      this%colored = colored
     end if
 
     if ( present( debuglevel ) ) then
-      this.debuglevel = debuglevel
+      this%debuglevel = debuglevel
     end if
 
-    call this.write ( __FILE__, __LINE__, '*** Info: file = ',       this.file       )
-    call this.write ( __FILE__, __LINE__, '*** Info: email = ',      this.email      )
-    call this.write ( __FILE__, __LINE__, '*** Info: colored = ',    this.colored    )
-    call this.write ( __FILE__, __LINE__, '*** Info: debuglevel = ', this.debuglevel )
+    call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
+    call this%write ( __FILE__, __LINE__, '*** Info: email = ',      this%email      )
+    call this%write ( __FILE__, __LINE__, '*** Info: colored = ',    this%colored    )
+    call this%write ( __FILE__, __LINE__, '*** Info: debuglevel = ', this%debuglevel )
 
   end subroutine
 
@@ -167,7 +167,7 @@ contains
     !character(7) :: WHITE   = achar(27)//'[1;47m'
     character(4) :: CLEAR   = achar(27)//'[0m'
 
-    if ( this.debuglevel < 1 ) return
+    if ( this%debuglevel < 1 ) return
 
     !
     ! Timestamp
@@ -199,46 +199,46 @@ contains
     ! Keyword Coloring
     !
     if ( index( args, 'Log' ) > 0 ) then
-      if ( this.colored ) then
+      if ( this%colored ) then
         args_ansi = CYAN//trim(args)//CLEAR
       end if
-      if ( this.debuglevel >= 1 ) then
+      if ( this%debuglevel >= 1 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
     if ( index( args, 'Error' ) > 0  .or. index( args, 'Fatal' ) > 0 ) then
-      if ( this.colored ) then
+      if ( this%colored ) then
         args_ansi = RED//trim(args)//CLEAR
       end if
-      if ( this.debuglevel >= 1 ) then
+      if ( this%debuglevel >= 1 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
     if ( index( args, 'Warn' ) > 0 ) then
-      if ( this.colored ) then
+      if ( this%colored ) then
         args_ansi = YELLOW//trim(args)//CLEAR
       end if
-      if ( this.debuglevel >= 2 ) then
+      if ( this%debuglevel >= 2 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
     if ( index( args, 'Debug' ) > 0 ) then
-      if ( this.colored ) then
+      if ( this%colored ) then
         args_ansi = GREEN//trim(args)//CLEAR
       end if
-      if ( this.debuglevel >= 3 ) then
+      if ( this%debuglevel >= 3 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
     if ( index( args, 'Info' ) > 0 ) then
-      if ( this.colored ) then
+      if ( this%colored ) then
         args_ansi = BLUE//trim(args)//CLEAR
       end if
-      if ( this.debuglevel >= 4 ) then
+      if ( this%debuglevel >= 4 ) then
         write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
@@ -248,9 +248,9 @@ contains
     !
     ! Email Sending
     !
-    if ( this.email /= 'NA' ) then
+    if ( this%email /= 'NA' ) then
       call execute_command_line ( 'echo "'//trim(args)//&
-        '" | neomutt -s "[fortran-logger]'//trim(prefix)//'" '//trim(this.email), &
+        '" | neomutt -s "[fortran-logger]'//trim(prefix)//'" '//trim(this%email), &
         exitstat = exitstat, &
         cmdstat  = cmdstat,  &
         cmdmsg   = cmdmsg)
@@ -263,8 +263,8 @@ contains
     !
     ! Write Logging Message
     !
-    if ( this.file /= 'NA' ) then
-      open ( newunit = u, file = this.file, access = 'append', iomsg = iomsg, iostat = iostat ) 
+    if ( this%file /= 'NA' ) then
+      open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat ) 
       if ( iostat /= 0 ) then
         write (stderr, *) trim(iomsg)
       end if
@@ -290,20 +290,20 @@ contains
     call execute_command_line( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
 
     if ( cmdstat > 0 ) then ! Command execution failed with error
-      call this.write ( file_macro, line_macro, &
+      call this%write ( file_macro, line_macro, &
         '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
       stop 1
     else if ( cmdstat < 0 ) then ! Command execution not supported
-      call this.write ( file_macro, line_macro, &
+      call this%write ( file_macro, line_macro, &
         '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
       stop 1
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
-        call this.write ( file_macro, line_macro, &
+        call this%write ( file_macro, line_macro, &
           '*** Error: exitstat=', exitstat, ', cmdstat=0', ', Command:', cmd )
         stop 1
       else
-        call this.write ( file_macro, line_macro, '*** Info: Command (successful): ', cmd )
+        call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', cmd )
       end if
     end if
 
