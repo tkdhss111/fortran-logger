@@ -4,4 +4,4 @@ A Simple Logger for Fortran.
 
 - ANSI coloring on terminal {Fatal, Error, Warn, Debug, Info}
 - Multi-threaded
-- Email capability
+- Email capability with "sendmail" argument

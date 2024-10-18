@@ -61,4 +61,11 @@ program unit_test
   __INFO__( 'Macro test: info' )
   __EXEC__( 'touch exec_test2.txt' )
 
+  !
+  ! Email ( with "mail" argument )
+  !
+  call logger%init ( file = 'test.log', debuglevel = 4, email = 'example@gmail.com' )
+  __ERROR__( 'sendmail' )
+  __FATAL__( paste( 'Otegami', i, 'sendmail' ) )
+
 end program

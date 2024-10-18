@@ -155,6 +155,7 @@ contains
     character(19)                     :: datetime
     character(255)                    :: iomsg, cmdmsg
     integer u, iostat, cmdstat, exitstat
+    integer i
 
     ! ANSI Console Colors
     !character(7) :: BLACK   = achar(27)//'[1;40m'
@@ -248,15 +249,21 @@ contains
     !
     ! Email Sending
     !
-    if ( this%email /= 'NA' ) then
-      call execute_command_line ( 'echo "'//trim(args)//&
-        '" | neomutt -s "[fortran-logger]'//trim(prefix)//'" '//trim(this%email), &
-        exitstat = exitstat, &
-        cmdstat  = cmdstat,  &
-        cmdmsg   = cmdmsg)
-      if ( exitstat /= 0 ) then 
-        write (stderr, '(a, i0, a)') &
-          '*** Error: exitstat=', exitstat, ', cmdstat=', cmdstat, ', cmdmsg: '//trim(cmdmsg)
+    i = index( args, 'sendmail' )
+    if ( i > 0 .and. this%email /= 'NA' ) then
+      if ( this%email == 'NA' ) then
+        write (stderr, *) '*** Erorr: Email address is required for sending email.'
+      else
+        args = args(1:i-1)//args(i+8:)
+        call execute_command_line ( 'echo "'//trim(args)//&
+          '" | neomutt -s "[Error]'//trim(prefix)//trim(args)//'" -i '//trim(this%file)//' -- '//trim(this%email), &
+          exitstat = exitstat, &
+          cmdstat  = cmdstat,  &
+          cmdmsg   = cmdmsg)
+        if ( exitstat /= 0 ) then 
+          write (stderr, '(a, i0, a)') &
+            '*** Error: exitstat=', exitstat, ', cmdstat=', cmdstat, ', cmdmsg: '//trim(cmdmsg)
+        end if
       end if
     end if
 
