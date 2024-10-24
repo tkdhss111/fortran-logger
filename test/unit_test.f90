@@ -62,10 +62,10 @@ program unit_test
   __EXEC__( 'touch exec_test2.txt' )
 
   !
-  ! Email ( with "mail" argument )
+  ! Email ( with "sendmail" argument )
   !
-  call logger%init ( file = 'test.log', debuglevel = 4, email = 'example@gmail.com' )
-  __ERROR__( 'sendmail' )
+  call logger%init ( file = 'test.log', app = 'Test App. @ HP-Z840', debuglevel = 4, email = 'dsbiztiu@gmail.com' )
+  __ERROR__( paste( 'Taihendesu!', 'sendmail' ) )
   __FATAL__( paste( 'Otegami', i, 'sendmail' ) )
 
 end program

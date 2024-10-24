@@ -8,11 +8,12 @@ module logger_mo
   public :: logger_ty, paste
 
   type logger_ty
-    character(255) :: file       = 'NA'
-    character(255) :: email      = 'NA'
-    character(255) :: args       = 'NA'
-    logical        :: colored    = .false.
-    integer        :: debuglevel = 1 ! 0: No logging
+    character(255) :: file       = 'NA'    ! Log file path
+    character(255) :: app        = 'MyApp' ! Application name
+    character(255) :: email      = 'NA'    ! Email address
+    character(255) :: args       = 'NA'    ! Debug arguments
+    logical        :: colored    = .false. ! Use ANSI terminal colors
+    integer        :: debuglevel = 1       ! Debug level (0: No logging)
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
@@ -107,10 +108,11 @@ contains
 
   end subroutine
 
-  subroutine init_logger ( this, file, email, colored, debuglevel )
+  subroutine init_logger ( this, file, app, email, colored, debuglevel )
 
     class(logger_ty),       intent(out) :: this
     character(*), optional, intent(in)  :: file
+    character(*), optional, intent(in)  :: app
     character(*), optional, intent(in)  :: email
     logical,      optional, intent(in)  :: colored
     integer,      optional, intent(in)  :: debuglevel
@@ -121,6 +123,10 @@ contains
 
     if ( this_image() == 1 ) then
       call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+    end if
+
+    if ( present( app ) ) then
+      this%app = trim(app)
     end if
 
     if ( present( email ) ) then
@@ -191,7 +197,7 @@ contains
     ! Prefix
     !
     write ( prefix, '(a, a15, a1, i4, a1)' ) &
-      '['//datetime//']'//trim(cimage)//'[', trim(basename(file)), ':', line, ']'
+      '['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'[', trim(basename(file)), ':', line, ']'
 
     args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 
@@ -257,7 +263,8 @@ contains
       else
         args = args(1:i-1)//args(i+8:)
         call execute_command_line ( 'echo "'//trim(args)//&
-          '" | neomutt -s "[Error]'//trim(prefix)//trim(args)//'" -i '//trim(this%file)//' -- '//trim(this%email), &
+          '" | neomutt -s "'//trim(prefix)//trim(args)//&
+          '" -i '//trim(this%file)//' -- '//trim(this%email), &
           exitstat = exitstat, &
           cmdstat  = cmdstat,  &
           cmdmsg   = cmdmsg)
