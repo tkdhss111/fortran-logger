@@ -8,7 +8,7 @@ module logger_mo
   public :: logger_ty, paste
 
   type logger_ty
-    character(255) :: file       = 'NA'    ! Log file path
+    character(255) :: file       = 'fortran-logger.log' ! Log file path
     character(255) :: app        = 'MyApp' ! Application name
     character(255) :: email      = 'NA'    ! Email address
     character(255) :: args       = 'NA'    ! Debug arguments
@@ -269,7 +269,7 @@ contains
           cmdstat  = cmdstat,  &
           cmdmsg   = cmdmsg)
         if ( exitstat /= 0 ) then 
-          write (stderr, '(a, i0, a)') &
+          write (stderr, '(a, i0, a, i0, a)') &
             '*** Error: exitstat=', exitstat, ', cmdstat=', cmdstat, ', cmdmsg: '//trim(cmdmsg)
         end if
       end if
@@ -278,14 +278,12 @@ contains
     !
     ! Write Logging Message
     !
-    if ( this%file /= 'NA' ) then
-      open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat ) 
-      if ( iostat /= 0 ) then
-        write (stderr, *) trim(iomsg)
-      end if
-      write ( u, * ) trim(prefix)//' '//trim(args)
-      close ( u )
+    open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat ) 
+    if ( iostat /= 0 ) then
+      write (stderr, *) trim(iomsg)
     end if
+    write ( u, * ) trim(prefix)//' '//trim(args)
+    close ( u )
 
     end critical
 
