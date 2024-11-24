@@ -44,7 +44,7 @@ program unit_test
   !call logger%exec ( __FILE__, __LINE__,  'rm non-existed.txt' ) ! will stop
 
   ! Test: Open file with logger (run twice to cause an error)
-  call logger%exec ( __FILE__, __LINE__, 'rm test.txt' )
+ ! call logger%exec ( __FILE__, __LINE__, 'rm test.txt' )
   call logger%open ( __FILE__, __LINE__, newunit = u, file = 'test.txt', status = 'new', access = 'append' ) ! will stop if text.txt exists.
   write ( u, '(a)' ) 'Test line'
   close ( u )

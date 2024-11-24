@@ -97,7 +97,7 @@ contains
       form_ = 'formatted'
     end if
 
-    open( newunit = newunit, &
+    open ( newunit = newunit, &
       file = trim(file), status = trim(status_), access = trim(access_), form = trim(form_), &
       iomsg = iomsg, iostat = iostat )
 
@@ -121,10 +121,6 @@ contains
       this%file = trim( file )
     end if
 
-    if ( this_image() == 1 ) then
-      call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
-    end if
-
     if ( present( app ) ) then
       this%app = trim(app)
     end if
@@ -139,6 +135,10 @@ contains
 
     if ( present( debuglevel ) ) then
       this%debuglevel = debuglevel
+    end if
+
+    if ( this_image() == 1 ) then
+      call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
     end if
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
