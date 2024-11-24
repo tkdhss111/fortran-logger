@@ -138,7 +138,7 @@ contains
     end if
 
     if ( this_image() == 1 ) then
-      call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+      call execute_command_line( 'rm -f '//trim(this%file) )
     end if
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
