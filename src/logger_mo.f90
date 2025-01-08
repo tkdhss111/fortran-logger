@@ -251,7 +251,7 @@ contains
       end if
     end if
 
-    critical ! N.B. Place critical before email, or multiple email will be sent.
+    !critical ! N.B. Place critical before email, or multiple email will be sent.
 
     !
     ! Email Sending
@@ -285,7 +285,7 @@ contains
     write ( u, * ) trim(prefix)//' '//trim(args)
     close ( u )
 
-    end critical
+    !end critical
 
   end subroutine
   
