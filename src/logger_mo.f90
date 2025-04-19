@@ -14,6 +14,8 @@ module logger_mo
     character(255) :: args       = 'NA'    ! Debug arguments
     logical        :: colored    = .false. ! Use ANSI terminal colors
     integer        :: debuglevel = 1       ! Debug level (0: No logging)
+    integer        :: this_image = 1       ! Coarray image id number
+    integer        :: num_images = 1       ! Coarray number of images
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
@@ -108,12 +110,13 @@ contains
 
   end subroutine
 
-  subroutine init_logger ( this, file, app, email, colored, debuglevel )
+  subroutine init_logger ( this, file, app, email, colored, debuglevel, this_image, num_images )
 
     class(logger_ty),       intent(out) :: this
     character(*), optional, intent(in)  :: file
     character(*), optional, intent(in)  :: app
     character(*), optional, intent(in)  :: email
+    integer,      optional, intent(in)  :: this_image, num_images
     logical,      optional, intent(in)  :: colored
     integer,      optional, intent(in)  :: debuglevel
 
@@ -137,8 +140,12 @@ contains
       this%debuglevel = debuglevel
     end if
 
-    if ( this_image() == 1 ) then
-      call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+    if ( present( this_image ) .and. present( num_images ) ) then
+      this%this_image = this_image
+      this%num_images = num_images
+      if ( this_image == 1 ) then
+        call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+      end if
     end if
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
@@ -155,7 +162,7 @@ contains
     integer,            intent(in)    :: line
     class(*), optional, intent(in)    :: x1, x2, x3, x4, x5, x6, x7, x8, x9, x10
     character(255)                    :: prefix
-    character(20)                     :: cimage
+    character(20)                     :: cimage = ''
     character(:), allocatable         :: args, args_ansi
     character(8)                      :: date
     character(10)                     :: time
@@ -187,10 +194,8 @@ contains
     !
     ! Coarray Images
     !
-    if ( num_images() > 1 ) then
-      write ( cimage, '("[Image", i3, "/", i3, "]")' ) this_image(), num_images()
-    else
-      cimage = ''
+    if ( this%num_images > 1 ) then
+      write ( cimage, '("[Image", i3, "/", i3, "]")' ) this%this_image, this%num_images
     end if
 
     !
@@ -288,7 +293,7 @@ contains
     !end critical
 
   end subroutine
-  
+
   subroutine execute_with_logger ( this, file_macro, line_macro, cmd )
 
     class(logger_ty), intent(inout) :: this

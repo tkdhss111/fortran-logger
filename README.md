@@ -8,7 +8,6 @@ A Simple Logger for Fortran
 
 ## Usage
 
-
 - Initialization
 
 ```
@@ -74,4 +73,4 @@ Please replace MUA (I use neomutt) name to yours in logger_mo.f90.
 
 [test/unit_test.f90]
 
-![unit_test](./unit_test.png)
+![unit_test](./doc/unit_test.png)
