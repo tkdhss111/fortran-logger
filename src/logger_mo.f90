@@ -201,8 +201,8 @@ contains
     !
     ! Prefix
     !
-    write ( prefix, '(a, a15, a1, i4, a1)' ) &
-      '['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'[', trim(basename(file)), ':', line, ']'
+    write ( prefix, '(a, i4, a1)' ) &
+      '['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
 
     args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 

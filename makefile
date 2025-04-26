@@ -7,3 +7,5 @@ test:
 
 clean:
 	rm -r build
+	rm -r bak
+	rm tags*
