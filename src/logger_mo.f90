@@ -8,14 +8,15 @@ module logger_mo
   public :: logger_ty, paste
 
   type logger_ty
-    character(255) :: file       = 'fortran-logger.log' ! Log file path
-    character(255) :: app        = 'MyApp' ! Application name
-    character(255) :: email      = 'NA'    ! Email address
-    character(255) :: args       = 'NA'    ! Debug arguments
-    logical        :: colored    = .false. ! Use ANSI terminal colors
-    integer        :: debuglevel = 1       ! Debug level (0: No logging)
-    integer        :: this_image = 1       ! Coarray image id number
-    integer        :: num_images = 1       ! Coarray number of images
+    character(255) :: file        = 'fortran-logger.log' ! Log file path
+    character(255) :: app         = 'MyApp' ! Application name
+    character(255) :: email       = 'NA'    ! Email address
+    character(255) :: args        = 'NA'    ! Debug arguments
+    logical        :: colored     = .false. ! Use ANSI terminal colors
+    integer        :: debuglevel  = 1       ! Debug level (0: No logging)
+    integer        :: this_image  = 1       ! Coarray image id number
+    integer        :: num_images  = 1       ! Coarray number of images
+    logical        :: print_image = .false. ! Coarray print
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
@@ -141,8 +142,9 @@ contains
     end if
 
     if ( present( this_image ) .and. present( num_images ) ) then
-      this%this_image = this_image
-      this%num_images = num_images
+      this%print_image = .true.
+      this%this_image  = this_image
+      this%num_images  = num_images
       if ( this_image == 1 ) then
         call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
       end if
@@ -194,7 +196,7 @@ contains
     !
     ! Coarray Images
     !
-    if ( this%num_images > 1 ) then
+    if ( this%print_image ) then
       write ( cimage, '("[Image", i3, "/", i3, "]")' ) this%this_image, this%num_images
     end if
 
