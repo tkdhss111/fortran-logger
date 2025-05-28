@@ -169,7 +169,7 @@ contains
     character(8)                      :: date
     character(10)                     :: time
     character(19)                     :: datetime
-    character(255)                    :: iomsg, cmdmsg
+    character(1000)                   :: iomsg, cmdmsg
     integer u, iostat, cmdstat, exitstat
     integer i
 
@@ -303,27 +303,27 @@ contains
     integer,          intent(in)    :: line_macro
     character(*),     intent(in)    :: cmd
     integer                         :: cmdstat, exitstat
-    character(255)                  :: cmdmsg
+    character(1000)                 :: cmdmsg
 
     cmdmsg = 'NA'
 
-    call execute_command_line( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
+    call execute_command_line ( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
 
     if ( cmdstat > 0 ) then ! Command execution failed with error
       call this%write ( file_macro, line_macro, &
-        '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
+      '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', trim(cmd) )
       stop 1
     else if ( cmdstat < 0 ) then ! Command execution not supported
       call this%write ( file_macro, line_macro, &
-        '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', cmd )
+        '*** Error: cmdstat=', cmdstat, ', cmdmsg:', cmdmsg, ', Command:', trim(cmd) )
       stop 1
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
         call this%write ( file_macro, line_macro, &
-          '*** Error: exitstat=', exitstat, ', cmdstat=0', ', Command:', cmd )
+        '*** Error: exitstat=', exitstat, ', cmdstat=0', ', Command:', trim(cmd) )
         stop 1
       else
-        call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', cmd )
+        call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', trim(cmd) )
       end if
     end if
 
