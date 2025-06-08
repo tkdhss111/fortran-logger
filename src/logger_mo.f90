@@ -296,14 +296,15 @@ contains
 
   end subroutine
 
-  subroutine execute_with_logger ( this, file_macro, line_macro, cmd )
+  subroutine execute_with_logger ( this, file_macro, line_macro, cmd, stat )
 
-    class(logger_ty), intent(inout) :: this
-    character(*),     intent(in)    :: file_macro
-    integer,          intent(in)    :: line_macro
-    character(*),     intent(in)    :: cmd
-    integer                         :: cmdstat, exitstat
-    character(1000)                 :: cmdmsg
+    class(logger_ty),  intent(inout) :: this
+    character(*),      intent(in)    :: file_macro
+    integer,           intent(in)    :: line_macro
+    character(*),      intent(in)    :: cmd
+    integer, optional, intent(inout) :: stat
+    integer                          :: cmdstat, exitstat
+    character(1000)                  :: cmdmsg
 
     cmdmsg = 'NA'
 
@@ -312,16 +313,31 @@ contains
     if ( cmdstat > 0 ) then ! Command execution failed with error
       call this%write ( file_macro, line_macro, &
       '*** Error: cmdstat=', cmdstat, ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-      stop 1
+      if ( present ( stat ) ) then
+         stat = cmdstat
+         return
+      else
+        stop 1
+      end if
     else if ( cmdstat < 0 ) then ! Command execution not supported
       call this%write ( file_macro, line_macro, &
         '*** Error: cmdstat=', cmdstat, ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-      stop 1
+      if ( present ( stat ) ) then
+         stat = cmdstat
+         return
+      else
+        stop 1
+      end if
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
         call this%write ( file_macro, line_macro, &
         '*** Error: exitstat=', exitstat, ', cmdstat=0', ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-        stop 1
+        if ( present ( stat ) ) then
+           stat = exitstat
+           return
+        else
+          stop 1
+        end if
       else
         call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', trim(cmd) )
       end if
