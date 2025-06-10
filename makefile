@@ -13,4 +13,4 @@ test:
 clean:
 	rm -rf build
 	rm -rf bak
-	rm tags*
+	rm -f tags*
