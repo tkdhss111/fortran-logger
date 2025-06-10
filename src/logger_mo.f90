@@ -197,7 +197,7 @@ contains
     ! Coarray Images
     !
     if ( this%print_image ) then
-      write ( cimage, '("[Image", i3, "/", i3, "]")' ) this%this_image, this%num_images
+      write ( cimage, '("[i3, "/", i3, "]")' ) this%this_image, this%num_images
     end if
 
     !
