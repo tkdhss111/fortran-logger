@@ -317,7 +317,7 @@ contains
          stat = cmdstat
          return
       else
-        stop 1
+        error stop 1
       end if
     else if ( cmdstat < 0 ) then ! Command execution not supported
       call this%write ( file_macro, line_macro, &
@@ -326,7 +326,7 @@ contains
          stat = cmdstat
          return
       else
-        stop 1
+        error stop 1
       end if
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
@@ -336,7 +336,7 @@ contains
            stat = exitstat
            return
         else
-          stop 1
+          error stop 1
         end if
       else
         call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', trim(cmd) )
