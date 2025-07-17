@@ -106,7 +106,7 @@ contains
 
     if ( iostat /= 0 ) then
       call this%write ( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
-      stop '*** Erorr: '//trim(iomsg)
+      error stop '*** Erorr: '//trim(iomsg)
     end if
 
   end subroutine
@@ -197,14 +197,15 @@ contains
     ! Coarray Images
     !
     if ( this%print_image ) then
-      write ( cimage, '("[", i3, "/", i0, "]")' ) this%this_image, this%num_images
+      write ( cimage, '("[", i0, "/", i0, "]")' ) this%this_image, this%num_images
     end if
 
     !
     ! Prefix
     !
-    write ( prefix, '(a, i4, a1)' ) &
-      '['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
+    write ( prefix, '(a, i0, a1)' ) &
+      '['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
+      !'['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
 
     args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 
@@ -218,7 +219,7 @@ contains
         args_ansi = CYAN//trim(args)//CLEAR
       end if
       if ( this%debuglevel >= 1 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, '(a)' ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
@@ -227,7 +228,7 @@ contains
         args_ansi = RED//trim(args)//CLEAR
       end if
       if ( this%debuglevel >= 1 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, '(a)' ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
@@ -236,7 +237,7 @@ contains
         args_ansi = YELLOW//trim(args)//CLEAR
       end if
       if ( this%debuglevel >= 2 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, '(a)' ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
@@ -245,7 +246,7 @@ contains
         args_ansi = GREEN//trim(args)//CLEAR
       end if
       if ( this%debuglevel >= 3 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, '(a)' ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
@@ -254,7 +255,7 @@ contains
         args_ansi = BLUE//trim(args)//CLEAR
       end if
       if ( this%debuglevel >= 4 ) then
-        write ( stderr, * ) trim(prefix)//' '//trim(args_ansi)
+        write ( stderr, '(a)' ) trim(prefix)//' '//trim(args_ansi)
       end if
     end if
 
@@ -266,7 +267,7 @@ contains
     i = index( args, 'sendmail' )
     if ( i > 0 .and. this%email /= 'NA' ) then
       if ( this%email == 'NA' ) then
-        write (stderr, *) '*** Erorr: Email address is required for sending email.'
+        write (stderr, '(a)' ) '*** Erorr: Email address is required for sending email.'
       else
         args = args(1:i-1)//args(i+8:)
         call execute_command_line ( 'echo "'//trim(args)//&
@@ -287,9 +288,9 @@ contains
     !
     open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat ) 
     if ( iostat /= 0 ) then
-      write (stderr, *) trim(iomsg)
+      write (stderr, '(a)' ) trim(iomsg)
     end if
-    write ( u, * ) trim(prefix)//' '//trim(args)
+    write ( u, '(a)' ) trim(prefix)//' '//trim(args)
     close ( u )
 
     !end critical
