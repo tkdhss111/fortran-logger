@@ -32,16 +32,16 @@ contains
     character(:), allocatable      :: c1, c2, c3, c4, c5, c6, c7, c8, c9, c10
     character(:), allocatable      :: args
 
-    c1  = write_x ( x1  )
-    c2  = write_x ( x2  )
-    c3  = write_x ( x3  )
-    c4  = write_x ( x4  )
-    c5  = write_x ( x5  )
-    c6  = write_x ( x6  )
-    c7  = write_x ( x7  )
-    c8  = write_x ( x8  )
-    c9  = write_x ( x9  )
-    c10 = write_x ( x10 )
+    c1  = write_x( x1  )
+    c2  = write_x( x2  )
+    c3  = write_x( x3  )
+    c4  = write_x( x4  )
+    c5  = write_x( x5  )
+    c6  = write_x( x6  )
+    c7  = write_x( x7  )
+    c8  = write_x( x8  )
+    c9  = write_x( x9  )
+    c10 = write_x( x10 )
 
     args = trim(c1)//' '//trim(c2)//' '//trim(c3)//' '//trim(c4)//' '//trim(c5)//' '//&
       trim(c6)//' '//trim(c7)//' '//trim(c8)//' '//trim(c9)//' '//trim(c10)
@@ -53,13 +53,13 @@ contains
     c = ''
     if ( .not. present( x ) ) return
     select type ( y => x )
-      type is (character(*))
+      type is ( character(*) )
         c = y
-      type is (logical)
+      type is ( logical )
         write ( c, '(l)' ) y
-      type is (integer)
+      type is ( integer )
         write ( c, '(i0)' ) y
-      type is (real)
+      type is ( real )
         write ( c, '(f7.2)' ) y
       class default
         c = '(Unknown type)'
@@ -146,7 +146,7 @@ contains
       this%this_image  = this_image
       this%num_images  = num_images
       if ( this_image == 1 ) then
-        call this%exec ( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+        call this%exec( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
       end if
     end if
 
@@ -189,9 +189,9 @@ contains
     !
     ! Timestamp
     !
-    call date_and_time ( date, time )
+    call date_and_time( date, time )
     datetime = date(1:4)//'-'//date(5:6)//'-'//date(7:8)//' '//&
-                time(1:2)//':'//time(3:4)//':'//time(5:6)
+               time(1:2)//':'//time(3:4)//':'//time(5:6)
 
     !
     ! Coarray Images
@@ -207,7 +207,7 @@ contains
       '['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
       !'['//trim(this%app)//']'//'['//datetime//']'//trim(cimage)//'['//trim(basename(file))//':', line, ']'
 
-    args = paste ( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+    args = paste( x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 
     args_ansi = args
 
@@ -267,17 +267,17 @@ contains
     i = index( args, 'sendmail' )
     if ( i > 0 .and. this%email /= 'NA' ) then
       if ( this%email == 'NA' ) then
-        write (stderr, '(a)' ) '*** Erorr: Email address is required for sending email.'
+        write ( stderr, '(a)' ) '*** Erorr: Email address is required for sending email.'
       else
         args = args(1:i-1)//args(i+8:)
-        call execute_command_line ( 'echo "'//trim(args)//&
-          '" | neomutt -s "'//trim(prefix)//trim(args)//&
-          '" -i '//trim(this%file)//' -- '//trim(this%email), &
+        call execute_command_line( 'echo "'//trim(args)//        &
+             '" | neomutt -s "'//trim(prefix)//trim(args)//      &
+             '" -i '//trim(this%file)//' -- '//trim(this%email), &
           exitstat = exitstat, &
           cmdstat  = cmdstat,  &
           cmdmsg   = cmdmsg)
-        if ( exitstat /= 0 ) then 
-          write (stderr, '(a, i0, a, i0, a)') &
+        if ( exitstat /= 0 ) then
+          write ( stderr, '(a, i0, a, i0, a)' ) &
             '*** Error: exitstat=', exitstat, ', cmdstat=', cmdstat, ', cmdmsg: '//trim(cmdmsg)
         end if
       end if
@@ -286,9 +286,9 @@ contains
     !
     ! Write Logging Message
     !
-    open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat ) 
+    open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat )
     if ( iostat /= 0 ) then
-      write (stderr, '(a)' ) trim(iomsg)
+      write ( stderr, '(a)' ) trim(iomsg)
     end if
     write ( u, '(a)' ) trim(prefix)//' '//trim(args)
     close ( u )
