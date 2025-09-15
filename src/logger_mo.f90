@@ -105,7 +105,7 @@ contains
       iomsg = iomsg, iostat = iostat )
 
     if ( iostat /= 0 ) then
-      call this%write ( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
+      call this%write( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
       error stop '*** Erorr: '//trim(iomsg)
     end if
 
@@ -223,7 +223,7 @@ contains
       end if
     end if
 
-    if ( index( args, 'Error' ) > 0  .or. index( args, 'Fatal' ) > 0 ) then
+    if ( index( args, 'Error' ) > 0 .or. index( args, 'Fatal' ) > 0 ) then
       if ( this%colored ) then
         args_ansi = RED//trim(args)//CLEAR
       end if
@@ -309,12 +309,12 @@ contains
 
     cmdmsg = 'NA'
 
-    call execute_command_line ( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
+    call execute_command_line( trim(cmd), exitstat = exitstat, cmdstat = cmdstat, cmdmsg = cmdmsg )
 
     if ( cmdstat > 0 ) then ! Command execution failed with error
       call this%write ( file_macro, line_macro, &
       '*** Error: cmdstat=', cmdstat, ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-      if ( present ( stat ) ) then
+      if ( present( stat ) ) then
          stat = cmdstat
          return
       else
@@ -323,7 +323,7 @@ contains
     else if ( cmdstat < 0 ) then ! Command execution not supported
       call this%write ( file_macro, line_macro, &
         '*** Error: cmdstat=', cmdstat, ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-      if ( present ( stat ) ) then
+      if ( present( stat ) ) then
          stat = cmdstat
          return
       else
@@ -333,7 +333,7 @@ contains
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
         call this%write ( file_macro, line_macro, &
         '*** Error: exitstat=', exitstat, ', cmdstat=0', ', cmdmsg:', trim(cmdmsg), ', Command:', trim(cmd) )
-        if ( present ( stat ) ) then
+        if ( present( stat ) ) then
            stat = exitstat
            return
         else
