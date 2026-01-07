@@ -5,5 +5,5 @@ app/bak/
 src/bak/
 test/bak/
 test/test.txt
-test.log
+*.log
 tags

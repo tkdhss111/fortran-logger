@@ -123,6 +123,8 @@ contains
 
     if ( present( file ) ) then
       this%file = trim( file )
+    else
+      this%file = './logger.log'
     end if
 
     if ( present( app ) ) then
@@ -145,10 +147,9 @@ contains
       this%print_image = .true.
       this%this_image  = this_image
       this%num_images  = num_images
-      if ( this_image == 1 ) then
-        call this%exec( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
-      end if
     end if
+
+    call this%exec( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
     call this%write ( __FILE__, __LINE__, '*** Info: email = ',      this%email      )
