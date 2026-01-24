@@ -113,7 +113,7 @@ contains
 
   subroutine init_logger ( this, file, app, email, colored, debuglevel, this_image, num_images )
 
-    class(logger_ty),       intent(out) :: this
+    class(logger_ty),       intent(inout) :: this
     character(*), optional, intent(in)  :: file
     character(*), optional, intent(in)  :: app
     character(*), optional, intent(in)  :: email
@@ -149,7 +149,8 @@ contains
       this%num_images  = num_images
     end if
 
-    call this%exec( __FILE__, __LINE__, 'rm -f '//trim(this%file) )
+    ! Skip file truncation to avoid potential coarray issues
+    ! (Log files will grow unbounded - for debugging only)
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
     call this%write ( __FILE__, __LINE__, '*** Info: email = ',      this%email      )
@@ -198,7 +199,7 @@ contains
     ! Coarray Images
     !
     if ( this%print_image ) then
-      write ( cimage, '("[", i0, "/", i0, "]")' ) this%this_image, this%num_images
+      write ( cimage, '("[", i3, "/", i3, "]")' ) this%this_image, this%num_images
     end if
 
     !
@@ -290,6 +291,7 @@ contains
     open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat )
     if ( iostat /= 0 ) then
       write ( stderr, '(a)' ) trim(iomsg)
+      return
     end if
     write ( u, '(a)' ) trim(prefix)//' '//trim(args)
     close ( u )
