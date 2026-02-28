@@ -106,7 +106,7 @@ contains
 
     if ( iostat /= 0 ) then
       call this%write( file_macro, line_macro, '*** Erorr:', trim(iomsg) )
-      error stop '*** Erorr: '//trim(iomsg)
+      stop '*** Erorr: '//trim(iomsg)
     end if
 
   end subroutine
@@ -321,7 +321,7 @@ contains
          stat = cmdstat
          return
       else
-        error stop 1
+        stop 1
       end if
     else if ( cmdstat < 0 ) then ! Command execution not supported
       call this%write ( file_macro, line_macro, &
@@ -330,7 +330,7 @@ contains
          stat = cmdstat
          return
       else
-        error stop 1
+        stop 1
       end if
     else ! Command successfully completed with cmdstat == 0
       if ( exitstat /= 0 ) then ! Command completed with non-zero exitstat
@@ -340,10 +340,11 @@ contains
            stat = exitstat
            return
         else
-          error stop 1
+          stop 1
         end if
       else
         call this%write ( file_macro, line_macro, '*** Info: Command (successful): ', trim(cmd) )
+        if ( present(stat) ) stat = 0
       end if
     end if
 
