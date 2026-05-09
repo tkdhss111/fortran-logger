@@ -2,7 +2,8 @@ module logger_mo
 
   use, intrinsic :: iso_fortran_env, only : stdin  => input_unit,  &
                                             stdout => output_unit, &
-                                            stderr => error_unit
+                                            stderr => error_unit,  &
+                                            int64
   implicit none
   private
   public :: logger_ty, paste
@@ -17,6 +18,11 @@ module logger_mo
     integer        :: this_image  = 1       ! Coarray image id number
     integer        :: num_images  = 1       ! Coarray number of images
     logical        :: print_image = .false. ! Coarray print
+    ! Log rotation (logrotate-style: rotate when file >= max_size)
+    integer(int64) :: max_size         = 1_int64*1024_int64*1024_int64 ! 1 MB (practical minimum)
+    integer        :: max_backups      = 7       ! file.log.1 .. file.log.7
+    logical        :: compress_backups = .true.  ! gzip .2..N (delaycompress)
+    logical        :: enable_rotation  = .true.  ! disable for tests/debug
   contains
     procedure :: init  => init_logger
     procedure :: write => write_log
@@ -111,15 +117,20 @@ contains
 
   end subroutine
 
-  subroutine init_logger ( this, file, app, email, colored, debuglevel, this_image, num_images )
+  subroutine init_logger ( this, file, app, email, colored, debuglevel, this_image, num_images, &
+                           max_size, max_backups, compress_backups, enable_rotation )
 
-    class(logger_ty),       intent(inout) :: this
-    character(*), optional, intent(in)  :: file
-    character(*), optional, intent(in)  :: app
-    character(*), optional, intent(in)  :: email
-    integer,      optional, intent(in)  :: this_image, num_images
-    logical,      optional, intent(in)  :: colored
-    integer,      optional, intent(in)  :: debuglevel
+    class(logger_ty),         intent(inout) :: this
+    character(*),   optional, intent(in)  :: file
+    character(*),   optional, intent(in)  :: app
+    character(*),   optional, intent(in)  :: email
+    integer,        optional, intent(in)  :: this_image, num_images
+    logical,        optional, intent(in)  :: colored
+    integer,        optional, intent(in)  :: debuglevel
+    integer(int64), optional, intent(in)  :: max_size
+    integer,        optional, intent(in)  :: max_backups
+    logical,        optional, intent(in)  :: compress_backups
+    logical,        optional, intent(in)  :: enable_rotation
 
     if ( present( file ) ) then
       this%file = trim( file )
@@ -149,8 +160,13 @@ contains
       this%num_images  = num_images
     end if
 
+    if ( present( max_size         ) ) this%max_size         = max_size
+    if ( present( max_backups      ) ) this%max_backups      = max_backups
+    if ( present( compress_backups ) ) this%compress_backups = compress_backups
+    if ( present( enable_rotation  ) ) this%enable_rotation  = enable_rotation
+
     ! Skip file truncation to avoid potential coarray issues
-    ! (Log files will grow unbounded - for debugging only)
+    ! (Rotation handles size; init no longer truncates)
 
     call this%write ( __FILE__, __LINE__, '*** Info: file = ',       this%file       )
     call this%write ( __FILE__, __LINE__, '*** Info: email = ',      this%email      )
@@ -286,6 +302,21 @@ contains
     end if
 
     !
+    ! Log Rotation (logrotate-style, size-based)
+    !
+    if ( this%enable_rotation .and. this%max_size > 0_int64 ) then
+      block
+        logical        :: lr_exists
+        integer(int64) :: lr_size
+        lr_size = -1_int64
+        inquire( file = trim(this%file), exist = lr_exists, size = lr_size )
+        if ( lr_exists .and. lr_size >= this%max_size ) then
+          call rotate_log_file( trim(this%file), this%max_backups, this%compress_backups )
+        end if
+      end block
+    end if
+
+    !
     ! Write Logging Message
     !
     open ( newunit = u, file = this%file, access = 'append', iomsg = iomsg, iostat = iostat )
@@ -299,6 +330,85 @@ contains
     !end critical
 
   end subroutine
+
+  subroutine rotate_log_file ( base, max_backups, compress_backups )
+    !
+    ! Logrotate-style rotation:
+    !   delete  base.<N>[.gz]
+    !   rename  base.<N-1>[.gz] -> base.<N>[.gz]   for N = max_backups..2
+    !   rename  base            -> base.1
+    !   gzip    base.2 .. base.<N>                 (delaycompress: .1 stays plain)
+    !
+    character(*), intent(in) :: base
+    integer,      intent(in) :: max_backups
+    logical,      intent(in) :: compress_backups
+
+    character(20) :: csrc, cdst
+    character(:), allocatable :: src, dst
+    integer :: i
+    logical :: exists
+
+    if ( max_backups <= 0 ) then
+      ! No backups kept: just delete the current file
+      call execute_command_line( 'rm -f -- '//quote(base), wait = .true. )
+      return
+    end if
+
+    ! Step 1: drop the oldest backup (compressed or plain)
+    write ( cdst, '(i0)' ) max_backups
+    call execute_command_line( 'rm -f -- '//quote(base//'.'//trim(cdst)//'.gz'), wait = .true. )
+    call execute_command_line( 'rm -f -- '//quote(base//'.'//trim(cdst)),        wait = .true. )
+
+    ! Step 2: shift backwards .N-1 -> .N (handle both plain and .gz forms)
+    do i = max_backups - 1, 1, -1
+      write ( csrc, '(i0)' ) i
+      write ( cdst, '(i0)' ) i + 1
+      src = base//'.'//trim(csrc)//'.gz'
+      dst = base//'.'//trim(cdst)//'.gz'
+      inquire( file = src, exist = exists )
+      if ( exists ) call execute_command_line( 'mv -f -- '//quote(src)//' '//quote(dst), wait = .true. )
+      src = base//'.'//trim(csrc)
+      dst = base//'.'//trim(cdst)
+      inquire( file = src, exist = exists )
+      if ( exists ) call execute_command_line( 'mv -f -- '//quote(src)//' '//quote(dst), wait = .true. )
+    end do
+
+    ! Step 3: rename current file to .1
+    inquire( file = base, exist = exists )
+    if ( exists ) then
+      call execute_command_line( 'mv -f -- '//quote(base)//' '//quote(base//'.1'), wait = .true. )
+    end if
+
+    ! Step 4: compress .2 .. .max_backups (delaycompress: leave .1 uncompressed)
+    if ( compress_backups ) then
+      do i = 2, max_backups
+        write ( csrc, '(i0)' ) i
+        src = base//'.'//trim(csrc)
+        inquire( file = src, exist = exists )
+        if ( exists ) then
+          call execute_command_line( 'gzip -f -- '//quote(src), wait = .true. )
+        end if
+      end do
+    end if
+
+  end subroutine
+
+  pure function quote ( s ) result ( q )
+    ! Single-quote a path for safe shell interpolation.
+    ! Embedded single quotes are escaped as '\'' (close, escaped, reopen).
+    character(*), intent(in)  :: s
+    character(:), allocatable :: q
+    integer :: i
+    q = "'"
+    do i = 1, len_trim(s)
+      if ( s(i:i) == "'" ) then
+        q = q//"'\''"
+      else
+        q = q//s(i:i)
+      end if
+    end do
+    q = q//"'"
+  end function
 
   subroutine execute_with_logger ( this, file_macro, line_macro, cmd, stat )
 

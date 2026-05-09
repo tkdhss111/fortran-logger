@@ -2,6 +2,7 @@
 
 program unit_test
 
+  use, intrinsic :: iso_fortran_env, only : int64
   use logger_mo
 
   implicit none
@@ -10,6 +11,26 @@ program unit_test
   integer i, u
 
   print *, __FILE__, __LINE__
+
+  !
+  ! Log Rotation (size-based, logrotate-style)
+  !
+  ! Use a tiny max_size (200 bytes) and 3 backups so we can observe rotation
+  ! within a handful of writes.
+  !
+  call execute_command_line( 'rm -f rotate_test.log rotate_test.log.* ' )
+  call logger%init ( file        = 'rotate_test.log', &
+                     debuglevel  = 1,                 &
+                     max_size    = 200_int64,         &
+                     max_backups = 3,                 &
+                     compress_backups = .true. )
+  do i = 1, 25
+    call logger%write ( __FILE__, __LINE__, '*** Info: rotation iter', i, &
+                        'padding-padding-padding-padding-padding' )
+  end do
+  print *, 'Files after rotation test:'
+  call execute_command_line( 'ls -la rotate_test.log*' )
+  print *, ''
 
   ! Debug Level
   call logger%init ( file = 'test.log', debuglevel = 1 )

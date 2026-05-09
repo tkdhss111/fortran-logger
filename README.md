@@ -5,6 +5,7 @@ A Simple Logger for Fortran
 - ANSI coloring on terminal {Fatal, Error, Warn, Debug, Info}
 - Multi-threaded
 - Email capability with "sendmail" argument
+- Automatic log rotation (logrotate-style) — see [doc/log_rotation.md](doc/log_rotation.md)
 
 ## Usage
 
